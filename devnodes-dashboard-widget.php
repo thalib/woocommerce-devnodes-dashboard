@@ -19,19 +19,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function devnodes_wp_dashboard_setup() {
-	
-	// Widget slug., Widget Title, function
-	wp_add_dashboard_widget('devnodes_dash_welcome', esc_html__( 'User Information | Devnodes.in', 'devnodes' ),'func_devnodes_dash_widget_user' ); 
+function devnodes_wp_dashboard_setup()
+{
+    // Widget slug., Widget Title, function
+    wp_add_dashboard_widget('devnodes_dash_user_info', esc_html__('User Information | Devnodes.in', 'devnodes'), 'func_devnodes_dash_user_info');
+    wp_add_dashboard_widget('devnodes_dash_order_search', esc_html__('Search Orders | Devnodes.in', 'devnodes'), 'devnodes_dash_order_search');
 }
-add_action( 'wp_dashboard_setup', 'devnodes_wp_dashboard_setup' );
+add_action('wp_dashboard_setup', 'devnodes_wp_dashboard_setup');
+
 
 
 /**
  * Create the function to output the content of our Dashboard Widget.
  */
-function func_devnodes_dash_widget_user() {
-	// Display whatever you want to show.
+function func_devnodes_dash_user_info()
+{
+    // Display whatever you want to show.
     $user_count_data = count_users();
 
     $html = '<b>Total Users: </b>' . $user_count_data['total_users'] . '<br><hr>';
@@ -41,17 +44,32 @@ function func_devnodes_dash_widget_user() {
 
     // Get the users with the administrator role
     $args = array(
-        'role'    => 'administrator',
+        'role' => 'administrator',
         'orderby' => 'user_login',
-        'order'   => 'ASC'
+        'order' => 'ASC'
     );
-    $users = get_users( $args );
+    $users = get_users($args);
 
     $html .= '<hr><b>Admin users:</b><br>';
     // Loop through the users and display their information
-    foreach ( $users as $user ) {   
+    foreach ($users as $user) {
         $html .= $user->user_login . '[' . $user->user_email . ']<br>';
     }
 
     echo $html;
+}
+
+
+
+function devnodes_dash_order_search()
+{
+    //http://wp.localhost/wp-admin/edit.php?s=FDW230007&post_status=all&post_type=shop_order
+    ?>
+    <form action="<?php echo admin_url('edit.php'); ?>" method="get">
+        <input type="search" name="s" placeholder="Order ID, Tracking ID, etc." />
+        <input type="hidden" name="post_type" value="shop_order" />
+        <input type="hidden" name="post_status" value="all" />
+        <input class="button button-primary" type="submit" value="Search" />
+    </form>
+    <?php
 }
